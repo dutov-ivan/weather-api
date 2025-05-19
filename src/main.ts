@@ -3,10 +3,13 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { apiReference } from '@scalar/nestjs-api-reference';
 import * as dotenv from 'dotenv';
-dotenv.config();
+import { ConsoleLogger, ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger: new ConsoleLogger(),
+  });
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
   const config = new DocumentBuilder()
     .setTitle('Weather Forecast API')
     .setDescription(
@@ -17,7 +20,7 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, config);
   app.use(
-    '/reference',
+    '/api',
     apiReference({
       content: document,
     }),

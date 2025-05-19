@@ -1,14 +1,27 @@
 services:
   app:
-    build: .
+    build:
+      context: .
+      target: dev
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       DATABASE_URL: postgres://postgres:password@db:5432/mydb
-    env_file:
-      - .env
+      NODE_ENV: development
     depends_on:
       - db
+    develop:
+      watch:
+        - action: sync
+          path: ./src
+          target: /app/src
+          ignore:
+            - node_modules
+        - action: rebuild
+          path: package.json
 
   db:
     image: postgres:16-alpine
@@ -22,3 +35,4 @@ services:
 
 volumes:
   pgdata:
+  node_modules:
