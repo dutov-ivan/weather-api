@@ -15,7 +15,7 @@ export class EmailService {
     private readonly weatherService: WeatherService,
   ) {}
 
-  @Cron('* * * * *')
+  @Cron('0 * * * *')
   async sendScheduledEmails() {
     const subscriptions =
       await this.subscriptionService.findConfirmedSubscriptions();
