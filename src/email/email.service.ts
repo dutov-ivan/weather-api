@@ -1,31 +1,30 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
-import { Subscription } from 'src/subscription/subscription.model';
-import { WeatherService } from 'src/weather/weather.service';
-import { Repository } from 'typeorm';
+import { Subscription } from '../subscription/subscription.model';
+import { WeatherService } from '../weather/weather.service';
 import { isDue } from './lib';
-import { InjectRepository } from '@nestjs/typeorm';
+import { SubscriptionService } from '../subscription/subscription.service';
 
 @Injectable()
 export class EmailService {
   private readonly logger = new Logger(EmailService.name);
   constructor(
-    @InjectRepository(Subscription)
-    private readonly subscriptionRepository: Repository<Subscription>,
+    private readonly subscriptionService: SubscriptionService,
     private readonly mailerService: MailerService,
     private readonly weatherService: WeatherService,
   ) {}
 
-  @Cron('0 * * * *')
+  @Cron('* * * * *')
   async sendScheduledEmails() {
-    const subscriptions = await this.subscriptionRepository.find({
-      where: { confirmed: true },
-    });
+    const subscriptions =
+      await this.subscriptionService.findConfirmedSubscriptions();
     const now = new Date();
     for (const sub of subscriptions) {
       if (isDue(sub, now)) {
-        const weatherData = await this.weatherService.getWeather(sub.city);
+        const weatherData = await this.weatherService.getCurrentWeather(
+          sub.city,
+        );
         await this.mailerService.sendMail({
           to: sub.email,
           subject: `Your ${sub.frequency} weather for ${sub.city}`,
@@ -33,10 +32,11 @@ export class EmailService {
           context: {
             weather: weatherData,
             frequency: sub.frequency,
+            unsubscribeLink: `${process.env.APP_URL}/unsubscribe/${sub.confirmationCode}`,
           },
         });
         this.logger.log(`Email sent to ${sub.email} for ${sub.city}`);
-        await this.subscriptionRepository.update(sub.id, { lastSentAt: now });
+        await this.subscriptionService.updateLastSent(sub.id, now);
       }
     }
   }

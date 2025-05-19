@@ -7,13 +7,13 @@ describe('WeatherController', () => {
   let weatherService: WeatherService;
 
   beforeEach(async () => {
-    const app: TestingModule = await Test.createTestingModule({
+    const moduleRef: TestingModule = await Test.createTestingModule({
       controllers: [WeatherController],
       providers: [WeatherService],
     }).compile();
 
-    weatherController = app.get<WeatherController>(WeatherController);
-    weatherService = app.get<WeatherService>(WeatherService);
+    weatherController = moduleRef.get(WeatherController);
+    weatherService = moduleRef.get(WeatherService);
   });
 
   describe('root', () => {
@@ -25,9 +25,7 @@ describe('WeatherController', () => {
       };
       jest.spyOn(weatherService, 'getWeather').mockResolvedValue(result);
 
-      expect(await weatherController.getWeather({ city: 'London' })).toBe(
-        result,
-      );
+      expect(await weatherController.getWeather('London')).toBe(result);
     });
   });
 });

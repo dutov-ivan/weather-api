@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Your Weather Update</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        color: #333;
+        line-height: 1.6;
+      }
+      .footer {
+        margin-top: 30px;
+        font-size: 0.9em;
+        color: #888;
+        border-top: 1px solid #ddd;
+        padding-top: 10px;
+      }
+      .unsubscribe {
+        color: #888;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>
+      Your <%= frequency.charAt(0).toUpperCase() + frequency.slice(1) %> Weather
+      Update for <%= weather.city %>
+    </h1>
+
+    <p>Here is the latest weather forecast:</p>
+
+    <ul>
+      <li><strong>Temperature:</strong> <%= weather.temperature %> °C</li>
+      <li><strong>Humidity:</strong> <%= weather.humidity %> %</li>
+      <li><strong>Description:</strong> <%= weather.description %></li>
+    </ul>
+
+    <div class="footer">
+      This is your <%= frequency.charAt(0).toUpperCase() + frequency.slice(1) %>
+      subscription.<br />
+      <a href="<%= unsubscribeLink %>" class="unsubscribe">Unsubscribe</a> from
+      these emails.
+    </div>
+  </body>
+</html>

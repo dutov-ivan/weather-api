@@ -1,9 +1,15 @@
 import { MailerService } from '@nestjs-modules/mailer';
-import { Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Subscription } from './subscription.model';
 import { Repository } from 'typeorm';
 import { randomBytes } from 'crypto';
+import { SubscriptionResult } from './subscription-result.enum';
 
 @Injectable()
 export class SubscriptionService {
@@ -14,6 +20,9 @@ export class SubscriptionService {
   ) {}
 
   async initiateSubscription(email: string, city: string, frequency: string) {
+    this.logger.log(
+      `Initiating subscription for ${email} to receive ${frequency} updates for ${city}`,
+    );
     const existingSubscription = await this.subscriptionRepository.findOne({
       where: { email, city, frequency },
     });
@@ -35,34 +44,52 @@ export class SubscriptionService {
     return subscription;
   }
 
-  async confirmSubscription(token: string) {
+  async confirmToken(token: string) {
     const subscription = await this.subscriptionRepository.findOne({
       where: { confirmationCode: token },
     });
 
     if (!subscription) {
       this.logger.warn('Invalid confirmation token:', token);
-      return false;
+      return SubscriptionResult.NotFound;
+    }
+
+    if (subscription.confirmed) {
+      this.logger.warn('Subscription already confirmed:', subscription);
+      return SubscriptionResult.Invalid;
     }
 
     subscription.confirmed = true;
     await this.subscriptionRepository.save(subscription);
 
-    return true;
+    return SubscriptionResult.Success;
   }
 
-  async unsubscribe(token: string) {
+  async unsubscribeToken(token: string) {
     const subscription = await this.subscriptionRepository.findOne({
       where: { confirmationCode: token },
     });
 
     if (!subscription) {
-      this.logger.warn('Invalid unsubscribe token:', token);
-      return false;
+      this.logger.warn('Not found unsubscribe token:', token);
+      return SubscriptionResult.NotFound;
+    }
+
+    if (!subscription.confirmed) {
+      this.logger.warn('Subscription not confirmed:', subscription);
+      return SubscriptionResult.Invalid;
     }
 
     await this.subscriptionRepository.remove(subscription);
 
-    return true;
+    return SubscriptionResult.Success;
+  }
+
+  findConfirmedSubscriptions() {
+    return this.subscriptionRepository.find({ where: { confirmed: true } });
+  }
+
+  updateLastSent(id: number, date: Date) {
+    return this.subscriptionRepository.update(id, { lastSentAt: date });
   }
 }

@@ -36,7 +36,7 @@ export class WeatherService {
     }
   }
 
-  async getWeatherData(lat: number, lon: number): Promise<WeatherDto> {
+  async getWeatherDataForCoords(lat: number, lon: number): Promise<WeatherDto> {
     try {
       const weatherResponse = await fetch(
         `${process.env.FORECAST_API}?latitude=${lat}&longitude=${lon}&current=relative_humidity_2m,temperature_2m,weather_code`,
@@ -69,7 +69,7 @@ export class WeatherService {
     }
   }
 
-  async getWeather(city: string): Promise<WeatherDto> {
+  async getCurrentWeather(city: string): Promise<WeatherDto> {
     const cityData = await this.getCityData(city);
 
     if (!cityData.results || cityData.results.length === 0) {
@@ -77,6 +77,6 @@ export class WeatherService {
     }
 
     const { latitude, longitude } = cityData.results[0];
-    return this.getWeatherData(latitude, longitude);
+    return this.getWeatherDataForCoords(latitude, longitude);
   }
 }
