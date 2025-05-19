@@ -8,12 +8,12 @@ import {
   ExternalForecastApiResponse,
   ExternalGeocodeApiResponse,
   WeatherDto,
-} from './types';
-import { WEATHER_CODES } from './constants';
+} from '../types';
+import { WEATHER_CODES } from '../constants';
 
 @Injectable()
-export class AppService {
-  private readonly logger = new Logger(AppService.name);
+export class WeatherService {
+  private readonly logger = new Logger(WeatherService.name);
   async getCityData(name: string): Promise<ExternalGeocodeApiResponse> {
     try {
       const nameResponse = await fetch(

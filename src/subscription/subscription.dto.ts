@@ -13,5 +13,5 @@ export class SubscriptionDto {
     description: 'Frequency of updates (hourly or daily)',
     enum: ['hourly', 'daily'],
   })
-  frequency: 'hourly' | 'daily';
+  frequency: string;
 }
