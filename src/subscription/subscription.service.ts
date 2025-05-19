@@ -76,11 +76,16 @@ export class SubscriptionService {
     }
 
     if (!subscription.confirmed) {
-      this.logger.warn('Subscription not confirmed:', subscription);
+      this.logger.warn(
+        'Subscription not confirmed or already unsubscribed:',
+        subscription,
+      );
       return SubscriptionResult.Invalid;
     }
 
-    await this.subscriptionRepository.remove(subscription);
+    subscription.confirmed = false;
+    await this.subscriptionRepository.save(subscription);
+    this.logger.log('Unsubscribed successfully:', subscription);
 
     return SubscriptionResult.Success;
   }

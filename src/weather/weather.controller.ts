@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post } from '@nestjs/common';
+import { Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { WeatherService } from './weather.service';
 
@@ -13,7 +13,7 @@ export class WeatherController {
     status: 200,
     description: 'Returns current weather data for a city',
   })
-  getWeather(@Param('city') city: string) {
+  getWeather(@Query('city') city: string) {
     return this.weatherService.getCurrentWeather(city);
   }
 }

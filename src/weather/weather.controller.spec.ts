@@ -16,16 +16,28 @@ describe('WeatherController', () => {
     weatherService = moduleRef.get(WeatherService);
   });
 
-  describe('root', () => {
+  it('should be defined', () => {
+    expect(weatherController).toBeDefined();
+  });
+
+  describe('getWeather', () => {
     it('should return weather data for a city', async () => {
       const result = {
         temperature: 20,
         humidity: 50,
         description: 'Clear',
       };
-      jest.spyOn(weatherService, 'getWeather').mockResolvedValue(result);
-
+      jest.spyOn(weatherService, 'getCurrentWeather').mockResolvedValue(result);
       expect(await weatherController.getWeather('London')).toBe(result);
+    });
+
+    it('should propagate errors from the service', async () => {
+      jest
+        .spyOn(weatherService, 'getCurrentWeather')
+        .mockRejectedValue(new Error('City not found'));
+      await expect(weatherController.getWeather('Nowhere')).rejects.toThrow(
+        'City not found',
+      );
     });
   });
 });

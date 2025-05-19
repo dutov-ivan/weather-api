@@ -18,7 +18,7 @@ import {
   ApiResponse,
 } from '@nestjs/swagger';
 import { SubscriptionService } from './subscription.service';
-import { EmailService } from 'src/email/email.service';
+import { EmailService } from '../email/email.service';
 import { SubscriptionDto } from './subscription.dto';
 import { SubscriptionResult } from './subscription-result.enum';
 

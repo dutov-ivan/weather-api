@@ -65,7 +65,7 @@ export class WeatherService {
       };
     } catch (error) {
       this.logger.error(`Error fetching weather data: ${error.message}`);
-      throw new HttpException('Error fetching weather data', 500);
+      throw new NotFoundException('Weather data not found');
     }
   }
 
